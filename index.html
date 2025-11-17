@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Website Keuangan & Investasi</title>
+    <link rel="stylesheet" href="css.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="icon" href="image1.png" type="image/png" />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+</head>
+<body>
+    <!-- 🔷 Preloader Utama dengan Animasi Flip Up -->
+    <div id="preloader">
+        <img src="image1.png" alt="Logo" id="preloader-logo" />
+         
+    </div><div class="logo-text-container">
+        <span class="logo-text" id="preloader-text">The Good Money</span>
+    </div>
+
+    <!-- 📱 Navbar -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="image1.png" alt="Logo" /> 
+                  <span class="logo-text" id="navbar-text">The Good Money</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#home"><i class="fas fa-home"></i> Beranda</a></li>
+                <li><a href="#instruments"><i class="fas fa-chart-pie"></i> Instrumen</a></li>
+                <li><a href="#tips"><i class="fas fa-lightbulb"></i> Tips</a></li>
+                <li><a href="chat-ai.html"><i class="fas fa-robot"></i> Rencana Dana</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Background Gradient -->
+    <div class="bg-gradient-container"></div>
+
+    <!-- Floating Elements -->
+    <div class="floating-icons">
+        <div class="curved-line curved-line-1"></div>
+        <div class="curved-line curved-line-2"></div>
+        <div class="floating-icon bitcoin">
+            <i class="fab fa-bitcoin"></i>
+        </div>
+        <div class="floating-icon dollar">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="floating-icon chart">
+            <i class="fas fa-chart-line"></i>
+        </div>
+    </div>
+
+    <!-- Scroll Sections - DIPERBARUI -->
+    <div class="scroll-container">
+        <section id="home" class="scroll-section active">
+            <div class="section-content compact" data-aos="fade-up">
+                <h1>Keuangan & Investasi</h1>
+                <p class="subtitle">Mulai perjalanan finansial Anda dengan panduan yang tepat</p>
+                <button class="next-btn scroll-next">Mulai Eksplorasi <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </section>
+
+        <section id="instruments" class="scroll-section">
+            <div class="section-content compact" data-aos="fade-up">
+                <h2>Saran Instrumen Investasi</h2>
+                <div class="instruments-grid">
+                    <div class="instrument-card" data-aos="zoom-in" data-aos-delay="100">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Saham</h3>
+                        <p>Risiko tinggi, cocok untuk jangka panjang dengan potensi return tinggi.</p>
+                    </div>
+                    <div class="instrument-card" data-aos="zoom-in" data-aos-delay="200">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <h3>Obligasi</h3>
+                        <p>Lebih aman, pendapatan stabil dengan risiko lebih rendah.</p>
+                    </div>
+                    <div class="instrument-card" data-aos="zoom-in" data-aos-delay="300">
+                        <i class="fas fa-piggy-bank"></i>
+                        <h3>Reksa Dana</h3>
+                        <p>Diversifikasi otomatis untuk pemula dengan modal terjangkau.</p>
+                    </div>
+                    <div class="instrument-card" data-aos="zoom-in" data-aos-delay="400">
+                        <i class="fab fa-bitcoin"></i>
+                        <h3>Crypto</h3>
+                        <p>Volatil — hanya untuk yang paham risiko dan siap dengan fluktuasi tinggi.</p>
+                    </div>
+                </div>
+                <button class="next-btn scroll-next">Lanjutkan <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </section>
+
+        <section id="tips" class="scroll-section">
+            <div class="section-content compact" data-aos="fade-up">
+                <h2>Tips Investasi Cerdas</h2>
+                <div class="tips-list">
+                    <div class="tip-item" data-aos="fade-right" data-aos-delay="100">
+                        <i class="fas fa-seedling"></i>
+                        <div>
+                            <h3>Mulai Kecil</h3>
+                            <p>Investasikan 10-20% dari pendapatan bulanan Anda secara konsisten.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item" data-aos="fade-right" data-aos-delay="200">
+                        <i class="fas fa-balance-scale"></i>
+                        <div>
+                            <h3>Diversifikasi</h3>
+                            <p>Sebar investasi ke berbagai instrumen untuk mengurangi risiko.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item" data-aos="fade-right" data-aos-delay="300">
+                        <i class="fas fa-book"></i>
+                        <div>
+                            <h3>Terus Belajar</h3>
+                            <p>Pelajari pasar dan perkembangan ekonomi secara berkala.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item" data-aos="fade-right" data-aos-delay="400">
+                        <i class="fas fa-brain"></i>
+                        <div>
+                            <h3>Kendalikan Emosi</h3>
+                            <p>Jangan panik saat pasar turun, tetap fokus pada tujuan jangka panjang.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- TOMBOL DIUBAH MENJADI LINK KE CHAT-AI.HTML -->
+                <a href="chat-ai.html" class="next-btn">Rencanakan Keuangan Anda <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Navigation Dots - DIPERTAHANKAN UNTUK INDIKATOR -->
+    <div class="nav-dots">
+        <span class="dot active" data-section="home"></span>
+        <span class="dot" data-section="instruments"></span>
+        <span class="dot" data-section="tips"></span>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
+</body>
+</html>

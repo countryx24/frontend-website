@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Konsultan AI - KeuanganCerdas</title>
+    <link rel="stylesheet" href="css.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="icon" href="image1.png" type="image/png" />
+</head>
+<body>
+    <!-- 🔷 Preloader Utama dengan Animasi Flip Up -->
+    <div id="preloader">
+        <img src="image1.png" alt="Logo" id="preloader-logo" />
+        <div class="logo-text-container">
+        <span class="logo-text" id="preloader-text">The Good Money</span>
+    </div>
+
+    <!-- 📱 Navbar -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="image1.png" alt="Logo" />
+                  <span class="logo-text" id="navbar-text">The Good Money</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="index.html"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Background Gradient -->
+    <div class="bg-gradient-container"></div>
+
+    <!-- Floating Elements -->
+    <div class="floating-icons">
+        <div class="curved-line curved-line-1"></div>
+        <div class="curved-line curved-line-2"></div>
+        <div class="floating-icon bitcoin">
+            <i class="fab fa-bitcoin"></i>
+        </div>
+        <div class="floating-icon dollar">
+            <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="floating-icon chart">
+            <i class="fas fa-chart-line"></i>
+        </div>
+    </div>
+
+    <div class="chat-ai-container">
+        <header class="chat-header">
+            <h1><i class="fas fa-robot"></i> Konsultan Keuangan AI</h1>
+            <p>Dapatkan saran keuangan personal dari AI berdasarkan kebutuhan Anda</p>
+        </header>
+
+        <div class="container">
+            <!-- Form Konsultasi -->
+            <section class="card consultation-form-section">
+                <h2><i class="fas fa-edit"></i> Form Konsultasi Keuangan</h2>
+                <form id="consultation-form">
+                    <div class="form-group">
+                        <label for="dana">Dana yang Tersedia (Rp)</label>
+                        <input type="number" id="dana" name="dana" required placeholder="Contoh: 5000000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="keperluan">Keperluan Dana</label>
+                        <input type="text" id="keperluan" name="keperluan" required placeholder="Ketik keperluan Anda... Contoh: Dana Darurat, Beli Rumah, dll">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="jangkaWaktu">Jangka Waktu</label>
+                        <input type="text" id="jangkaWaktu" name="jangkaWaktu" required placeholder="Ketik jangka waktu... Contoh: 1 tahun, 5 tahun, dll">
+                    </div>
+                    
+                    <button type="submit" class="btn-action" id="submit-btn">
+                        <i class="fas fa-paper-plane"></i> Dapatkan Saran AI
+                    </button>
+                </form>
+            </section>
+
+            <!-- Hasil Konsultasi -->
+            <section class="card result-section" id="result-section" style="display: none;">
+                <h2><i class="fas fa-chart-line"></i> Saran Keuangan Anda</h2>
+                <div class="result-summary">
+                    <div class="summary-item">
+                        <strong>Dana:</strong> <span id="summary-dana"></span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>Keperluan:</strong> <span id="summary-keperluan"></span>
+                    </div>
+                    <div class="summary-item">
+                        <strong>Jangka Waktu:</strong> <span id="summary-jangkaWaktu"></span>
+                    </div>
+                </div>
+                <div class="ai-response" id="ai-response">
+                    <!-- AI response will appear here -->
+                </div>
+
+                <!-- QRIS Donation Section -->
+                <div class="qris-donation" id="qris-donation" style="display: none;">
+                    <h3><i class="fas fa-heart"></i> Dukung Pengembangan Kami</h3>
+                    <p class="donation-text">
+                        Layanan generate AI ini mengalami kendala untuk masalah pembiayaan. Jika Anda ingin mencoba fitur ini, 
+                        Anda dapat mendukung pengembangan melalui donasi berikut:
+                    </p>
+                    <img src="qris.png" alt="QRIS Donation" class="qris-image">
+                    <p class="donation-text">
+                        Scan QRIS di atas untuk melakukan donasi. Setiap kontribusi sangat berarti 
+                        untuk pengembangan layanan yang lebih baik.
+                    </p>
+                </div>
+
+                <button class="btn-action" id="new-consultation">
+                    <i class="fas fa-redo"></i> Konsultasi Baru
+                </button>
+            </section>
+
+            <!-- Loading Indicator -->
+            <div class="loading" id="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>AI sedang menganalisis kebutuhan Anda...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="chat-ai.js"></script>
+</body>
+</html>
