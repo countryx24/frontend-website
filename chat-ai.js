@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://localhost:3000/api/chat'; // Ganti dengan URL production
+const API_BASE_URL = 'http://localhost:3000/t'; // Ganti dengan URL production
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
