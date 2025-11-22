@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://103.149.177.182:3000/api/advice'; // Ganti dengan URL production
+const API_BASE_URL = 'http://103.149.177.182:3000'; // Base URL tanpa endpoint
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
@@ -31,16 +31,30 @@ async function handleConsultation(e) {
         jangkaWaktu: formData.get('jangkaWaktu')
     };
 
+    // Validasi form
+    if (!data.dana || !data.keperluan || !data.jangkaWaktu) {
+        alert('Harap isi semua field!');
+        return;
+    }
+
+    if (isNaN(data.dana) || data.dana <= 0) {
+        alert('Dana harus berupa angka positif!');
+        return;
+    }
+
     // Show loading
     showLoading();
     
-    // Set timeout for 7 seconds
+    // Set timeout for 15 seconds (lebih lama untuk AI processing)
     responseTimeout = setTimeout(() => {
+        console.log('⏰ Timeout reached, showing QRIS');
         showQRISDonation();
-    }, 7000);
+    }, 15000);
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        console.log('📤 Sending request to:', `${API_BASE_URL}/api/advice`);
+        
+        const response = await fetch(`${API_BASE_URL}/api/advice`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -48,26 +62,31 @@ async function handleConsultation(e) {
             body: JSON.stringify(data)
         });
 
-        // Clear timeout if response received
+        // Clear timeout jika response diterima
         clearTimeout(responseTimeout);
 
+        console.log('📥 Response status:', response.status);
+        
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ HTTP error:', response.status, errorText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const result = await response.json();
+        console.log('✅ Response success:', result);
         
         if (result.success) {
             displayResult(result.data);
         } else {
-            throw new Error(result.error || 'Terjadi kesalahan');
+            throw new Error(result.error || 'Terjadi kesalahan pada server');
         }
         
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Error:', error);
         // Clear timeout on error
         clearTimeout(responseTimeout);
-        // Tidak menampilkan alert, langsung tampilkan QRIS
+        // Tampilkan QRIS sebagai fallback
         showQRISDonation();
     } finally {
         hideLoading();
@@ -76,18 +95,64 @@ async function handleConsultation(e) {
 
 // Display AI response
 function displayResult(data) {
-    // Update summary
-    document.getElementById('summary-dana').textContent = `Rp ${parseInt(data.dana).toLocaleString('id-ID')}`;
-    document.getElementById('summary-keperluan').textContent = data.keperluan;
-    document.getElementById('summary-jangkaWaktu').textContent = data.jangkaWaktu;
+    console.log('🎯 Displaying result:', data);
     
-    // Display AI response with formatting
-    const aiResponse = document.getElementById('ai-response');
-    aiResponse.innerHTML = formatAIResponse(data.saran);
-    
-    // Hide QRIS donation if shown
-    if (qrisDonation) {
-        qrisDonation.style.display = 'none';
+    try {
+        // Update summary dari data backend
+        if (data.details) {
+            // Parse dari format: "Dana: Rp 50.000.000 | Jangka: 1 tahun"
+            const details = data.details;
+            const danaMatch = details.match(/Rp ([\d.,]+)/);
+            const jangkaMatch = details.match(/Jangka: (.+)$/);
+            
+            document.getElementById('summary-dana').textContent = danaMatch ? `Rp ${danaMatch[1]}` : `Rp ${parseInt(data.dana).toLocaleString('id-ID')}`;
+            document.getElementById('summary-keperluan').textContent = data.title ? data.title.replace('🤖 Saran Keuangan untuk ', '') : data.keperluan;
+            document.getElementById('summary-jangkaWaktu').textContent = jangkaMatch ? jangkaMatch[1] : data.jangkaWaktu;
+        } else {
+            // Fallback jika details tidak ada
+            document.getElementById('summary-dana').textContent = `Rp ${parseInt(data.dana).toLocaleString('id-ID')}`;
+            document.getElementById('summary-keperluan').textContent = data.keperluan;
+            document.getElementById('summary-jangkaWaktu').textContent = data.jangkaWaktu;
+        }
+        
+        // Display AI response dengan prioritas full_ai_response
+        const aiResponse = document.getElementById('ai-response');
+        let responseText = '';
+        
+        if (data.full_ai_response) {
+            responseText = data.full_ai_response;
+        } else if (data.strategy && data.actionPlan && data.target) {
+            responseText = `
+🤖 **SARAN KEUANGAN ANDA**
+
+**Strategi Utama:**
+${data.strategy.map((s, i) => `${i+1}. ${s}`).join('\n')}
+
+**Rencana Aksi:**
+${data.actionPlan}
+
+**Target:**
+${data.target}
+
+${data.note ? '\n**Catatan:** ' + data.note : ''}
+${data.ai_error ? '\n**Info:** ' + data.ai_error : ''}
+            `;
+        } else {
+            responseText = 'Saran keuangan sedang tidak tersedia. Silakan coba lagi.';
+        }
+        
+        aiResponse.innerHTML = formatAIResponse(responseText);
+        
+        // Hide QRIS donation jika berhasil
+        if (qrisDonation) {
+            qrisDonation.style.display = 'none';
+        }
+        
+    } catch (displayError) {
+        console.error('❌ Error displaying result:', displayError);
+        // Fallback ke QRIS jika ada error display
+        showQRISDonation();
+        return;
     }
     
     // Show result section and hide form
@@ -101,35 +166,56 @@ function displayResult(data) {
     resultSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-// Show QRIS donation after timeout
+// Show QRIS donation after timeout atau error
 function showQRISDonation() {
-    // Update summary with current form data
-    const formData = new FormData(consultationForm);
-    document.getElementById('summary-dana').textContent = `Rp ${parseInt(formData.get('dana')).toLocaleString('id-ID')}`;
-    document.getElementById('summary-keperluan').textContent = formData.get('keperluan');
-    document.getElementById('summary-jangkaWaktu').textContent = formData.get('jangkaWaktu');
+    console.log('💰 Showing QRIS donation');
     
-    // Display timeout message
+    // Update summary dengan data form terakhir
+    const formData = new FormData(consultationForm);
+    const dana = formData.get('dana');
+    const keperluan = formData.get('keperluan');
+    const jangkaWaktu = formData.get('jangkaWaktu');
+    
+    document.getElementById('summary-dana').textContent = `Rp ${parseInt(dana).toLocaleString('id-ID')}`;
+    document.getElementById('summary-keperluan').textContent = keperluan;
+    document.getElementById('summary-jangkaWaktu').textContent = jangkaWaktu;
+    
+    // Display fallback message
     const aiResponse = document.getElementById('ai-response');
     aiResponse.innerHTML = `
-        <p><strong>Terima kasih telah menggunakan layanan kami!</strong></p>
-        <p>Mohon maaf untuk tidak bisa menghasilkan generate AI karena kendala</p>
-        <p>Berikut adalah saran keuangan umum untuk Anda:</p>
-        <br>
-        <p><strong>1. Diversifikasi Portofolio</strong><br>
-        Sebarkan investasi Anda ke berbagai instrumen untuk mengurangi risiko.</p>
+        <div class="alert alert-info">
+            <p><strong>💡 Tips Keuangan Umum</strong></p>
+            <p>Berikut adalah saran keuangan dasar untuk Anda:</p>
+        </div>
         
-        <p><strong>2. Dana Darurat</strong><br>
-        Pastikan Anda memiliki dana darurat 3-6 bulan pengeluaran sebelum berinvestasi.</p>
+        <div class="strategy-item">
+            <strong>1. Diversifikasi Portofolio</strong><br>
+            Sebarkan investasi Anda ke berbagai instrumen (saham, reksadana, deposito) untuk mengurangi risiko.
+        </div>
         
-        <p><strong>3. Mulai dengan Amount Kecil</strong><br>
-        Mulailah dengan amount yang nyaman dan tingkatkan secara bertahap.</p>
+        <div class="strategy-item">
+            <strong>2. Dana Darurat</strong><br>
+            Pastikan Anda memiliki dana darurat 3-6 bulan pengeluaran sebelum berinvestasi besar.
+        </div>
         
-        <p><strong>4. Pelajari Instrumen Investasi</strong><br>
-        Pahami setiap instrumen sebelum berinvestasi untuk menghindari kerugian.</p>
+        <div class="strategy-item">
+            <strong>3. Mulai dengan Amount Kecil</strong><br>
+            Mulailah dengan amount yang nyaman dan tingkatkan secara bertahap seiring waktu.
+        </div>
         
-        <p><strong>5. Konsisten dan Disiplin</strong><br>
-        Investasi yang konsisten dalam jangka panjang biasanya memberikan hasil terbaik.</p>
+        <div class="strategy-item">
+            <strong>4. Edukasi Diri</strong><br>
+            Pelajari setiap instrumen investasi sebelum berkomitmen untuk menghindari kerugian.
+        </div>
+        
+        <div class="strategy-item">
+            <strong>5. Konsisten dan Disiplin</strong><br>
+            Investasi yang konsisten dalam jangka panjang biasanya memberikan hasil terbaik.
+        </div>
+        
+        <div class="mt-3 p-3 bg-light rounded">
+            <small>💡 <strong>Tip:</strong> Untuk saran yang lebih personalized, pastikan koneksi internet stabil dan coba lagi nanti.</small>
+        </div>
     `;
     
     // Show QRIS donation section
@@ -146,28 +232,34 @@ function showQRISDonation() {
     
     // Scroll to result
     resultSection.scrollIntoView({ behavior: 'smooth' });
-    
-    // Hide loading
-    hideLoading();
 }
 
 // Format AI response
 function formatAIResponse(response) {
-    if (!response) return '<p>Tidak ada saran yang tersedia.</p>';
+    if (!response) return '<p class="text-muted">Tidak ada saran yang tersedia.</p>';
     
-    // Convert markdown-like formatting to HTML
-    let formatted = response
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/(\d+\.)\s/g, '<br><strong>$1</strong> ')
-        .replace(/\n/g, '<br>')
-        .replace(/(Strategi|Tips|Risiko|Langkah|Rekomendasi)/gi, '<br><strong>$1</strong>');
-    
-    return formatted;
+    try {
+        // Convert markdown-like formatting to HTML
+        let formatted = response
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/🤖\s*\*\*(.*?)\*\*/g, '<h5 class="mt-3">$1</h5>')
+            .replace(/(\d+\.)\s/g, '<br><strong>$1</strong> ')
+            .replace(/\n\n/g, '</div><div class="strategy-item">')
+            .replace(/\n/g, '<br>')
+            .replace(/(Strategi|Rencana|Target|Tips|Risiko|Langkah|Rekomendasi)/gi, '<br><strong>$1</strong>');
+        
+        return `<div class="strategy-item">${formatted}</div>`;
+    } catch (error) {
+        console.error('❌ Error formatting response:', error);
+        return `<div class="strategy-item">${response}</div>`;
+    }
 }
 
 // Reset form for new consultation
 function resetForm() {
+    console.log('🔄 Resetting form');
+    
     consultationForm.reset();
     const formSection = document.querySelector('.consultation-form-section');
     if (formSection) {
@@ -183,32 +275,60 @@ function resetForm() {
     // Clear any existing timeout
     if (responseTimeout) {
         clearTimeout(responseTimeout);
+        console.log('⏰ Cleared existing timeout');
     }
     
     // Scroll to form
-    formSection.scrollIntoView({ behavior: 'smooth' });
+    if (formSection) {
+        formSection.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 // Loading states
 function showLoading() {
-    loadingElement.style.display = 'block';
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    console.log('⏳ Showing loading');
+    if (loadingElement) loadingElement.style.display = 'block';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    }
 }
 
 function hideLoading() {
-    loadingElement.style.display = 'none';
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Dapatkan Saran AI';
+    console.log('✅ Hiding loading');
+    if (loadingElement) loadingElement.style.display = 'none';
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Dapatkan Saran AI';
+    }
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Konsultan Keuangan AI siap digunakan');
+    console.log('🚀 Konsultan Keuangan AI siap digunakan');
+    console.log('🔗 API Base URL:', API_BASE_URL);
     
     // Add animation to cards
     const cards = document.querySelectorAll('.card');
     cards.forEach((card, index) => {
         card.style.animationDelay = `${index * 0.1}s`;
     });
+    
+    // Test connection on load
+    testConnection();
 });
+
+// Test connection to backend
+async function testConnection() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/health`);
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Backend connection OK:', data);
+        } else {
+            console.warn('⚠️ Backend connection issue:', response.status);
+        }
+    } catch (error) {
+        console.error('❌ Backend connection failed:', error);
+    }
+}
