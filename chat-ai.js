@@ -1,6 +1,3 @@
-// ========================
-//       CONFIG
-// ========================
 const API_BASE_URL = 'http://103.149.177.182:3000';
 
 const consultationForm = document.getElementById('consultation-form');
@@ -76,9 +73,9 @@ function displayResult(data) {
     const aiResponse = document.getElementById('ai-response');
     aiResponse.innerHTML = formatAIResponse(data);
 
-    qrisDonation && (qrisDonation.style.display = 'none');
+    if (qrisDonation) qrisDonation.style.display = 'none';
 
-    consultationForm.closest('.consultation-form-section').style.display = 'none';
+    consultationForm?.closest('.consultation-form-section')?.style.display = 'none';
     resultSection.style.display = 'block';
     resultSection.scrollIntoView({ behavior: 'smooth' });
 }
@@ -107,9 +104,9 @@ function showQRISDonation() {
         </div>
     `;
 
-    qrisDonation && (qrisDonation.style.display = 'block');
+    if (qrisDonation) qrisDonation.style.display = 'block';
 
-    consultationForm.closest('.consultation-form-section').style.display = 'none';
+    consultationForm?.closest('.consultation-form-section')?.style.display = 'none';
     resultSection.style.display = 'block';
     resultSection.scrollIntoView({ behavior: 'smooth' });
 }
@@ -119,7 +116,7 @@ function showQRISDonation() {
 // ========================
 function formatAIResponse(response) {
     if (!response) return '<p class="text-muted">Tidak ada saran yang tersedia.</p>';
-    return `<div class="strategy-item">${response.replace(/\n/g, '<br>')}</div>`;
+    return `<pre class="strategy-item">${response}</pre>`;
 }
 
 // ========================
@@ -127,10 +124,10 @@ function formatAIResponse(response) {
 // ========================
 function resetForm() {
     consultationForm.reset();
-    consultationForm.closest('.consultation-form-section').style.display = 'block';
+    consultationForm?.closest('.consultation-form-section')?.style.display = 'block';
     resultSection.style.display = 'none';
-    qrisDonation && (qrisDonation.style.display = 'none');
-    responseTimeout && clearTimeout(responseTimeout);
+    if (qrisDonation) qrisDonation.style.display = 'none';
+    if (responseTimeout) clearTimeout(responseTimeout);
     consultationForm.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -138,13 +135,13 @@ function resetForm() {
 //       LOADING STATES
 // ========================
 function showLoading() {
-    loadingElement && (loadingElement.style.display = 'block');
+    if (loadingElement) loadingElement.style.display = 'block';
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 }
 
 function hideLoading() {
-    loadingElement && (loadingElement.style.display = 'none');
+    if (loadingElement) loadingElement.style.display = 'none';
     submitBtn.disabled = false;
     submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Dapatkan Saran AI';
 }
