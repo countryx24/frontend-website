@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://103.149.177.182:3000/api/advice'; // Base URL tanpa endpoint
+const API_BASE_URL = 'http://103.149.177.182:3000'; // Base URL tanpa endpoint
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
