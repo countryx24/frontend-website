@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://0.0.0.0:3000'; // Ganti dengan URL production
+const API_BASE_URL = 'http://103.149.177.182:3000'; // Ganti dengan URL production
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
