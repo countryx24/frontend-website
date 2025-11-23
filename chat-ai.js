@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'http://localhost:3000'; // Ganti dengan URL production
+const API_BASE_URL = 'http://103.149.177.182:3000'; // Ganti dengan URL production
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
@@ -37,7 +37,7 @@ async function handleConsultation(e) {
     // Set timeout for 7 seconds
     responseTimeout = setTimeout(() => {
         showQRISDonation();
-    }, 7000);
+    }, 20000);
     
     try {
         const response = await fetch(`${API_BASE_URL}/api/advice`, {
