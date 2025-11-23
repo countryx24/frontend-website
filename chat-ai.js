@@ -1,5 +1,5 @@
-// API configuration
-const API_BASE_URL = 'https://01789907f3bf58.lhr.life/'; // Ganti dengan URL production
+// API configuration - PERBAIKI: HAPUS SLASH DI AKHIR
+const API_BASE_URL = 'https://01789907f3bf58.lhr.life'; // ✅ TANPA SLASH DI AKHIR
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
@@ -34,12 +34,13 @@ async function handleConsultation(e) {
     // Show loading
     showLoading();
     
-    // Set timeout for 7 seconds
+    // Set timeout for 20 seconds
     responseTimeout = setTimeout(() => {
         showQRISDonation();
     }, 20000);
     
     try {
+        // ✅ PERBAIKI: HAPUS DOUBLE SLASH DI URL
         const response = await fetch(`${API_BASE_URL}/api/advice`, {
             method: 'POST',
             headers: {
@@ -112,9 +113,11 @@ function showQRISDonation() {
     // Display timeout message
     const aiResponse = document.getElementById('ai-response');
     aiResponse.innerHTML = `
-        <p><strong>Terima kasih telah menggunakan layanan kami!</strong></p>
-        <p>Mohon maaf untuk tidak bisa menghasilkan generate AI karena kendala</p>
-        <p>Berikut adalah saran keuangan umum untuk Anda:</p>
+        <div style="color: orange; padding: 15px; border: 2px solid orange; border-radius: 10px; background: #fffaf0;">
+            <p><strong>⏰ Response Timeout</strong></p>
+            <p>Server membutuhkan waktu lebih lama dari yang diharapkan.</p>
+            <p>Berikut saran keuangan umum untuk Anda:</p>
+        </div>
         <br>
         <p><strong>1. Diversifikasi Portofolio</strong><br>
         Sebarkan investasi Anda ke berbagai instrumen untuk mengurangi risiko.</p>
@@ -191,20 +194,41 @@ function resetForm() {
 
 // Loading states
 function showLoading() {
-    loadingElement.style.display = 'block';
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    if (loadingElement) loadingElement.style.display = 'block';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+    }
 }
 
 function hideLoading() {
-    loadingElement.style.display = 'none';
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Dapatkan Saran AI';
+    if (loadingElement) loadingElement.style.display = 'none';
+    if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Dapatkan Saran AI';
+    }
+}
+
+// Fix QRIS image source
+function fixQRISImage() {
+    // Update semua gambar qris.png dengan URL yang benar
+    const qrisImages = document.querySelectorAll('img[src*="qris.png"], img[alt*="qris"], img[alt*="QRIS"]');
+    qrisImages.forEach(img => {
+        img.src = 'https://01789907f3bf58.lhr.life/qris.png';
+        img.onerror = function() {
+            // Fallback jika gambar tidak ditemukan
+            this.style.display = 'none';
+            console.log('QRIS image not found');
+        };
+    });
 }
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Konsultan Keuangan AI siap digunakan');
+    
+    // Fix QRIS images
+    fixQRISImage();
     
     // Add animation to cards
     const cards = document.querySelectorAll('.card');
