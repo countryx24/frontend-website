@@ -1,35 +1,29 @@
-// ========================
-//       CONFIG
-// ========================
-const API_BASE_URL = 'http://103.149.177.182:3000';
+// API configuration
+const API_BASE_URL = 'http://localhost:3000'; // Ganti dengan URL production
 
+// DOM Elements
 const consultationForm = document.getElementById('consultation-form');
 const resultSection = document.getElementById('result-section');
 const loadingElement = document.getElementById('loading');
 const submitBtn = document.getElementById('submit-btn');
 const qrisDonation = document.getElementById('qris-donation');
 
+// Variables for timeout
 let responseTimeout;
 
-// ========================
-//       EVENT LISTENERS
-// ========================
+// Event Listeners
 if (consultationForm) {
     consultationForm.addEventListener('submit', handleConsultation);
 }
 
-const newConsultBtn = document.getElementById('new-consultation');
-if (newConsultBtn) {
-    newConsultBtn.addEventListener('click', resetForm);
+if (document.getElementById('new-consultation')) {
+    document.getElementById('new-consultation').addEventListener('click', resetForm);
 }
 
-// ========================
-//       HANDLE FORM
-// ========================
+// Handle consultation form submission
 async function handleConsultation(e) {
-    e.preventDefault(); // STOP PAGE REFRESH
-    e.stopPropagation(); // Mencegah bubbling
-
+    e.preventDefault();
+    
     const formData = new FormData(consultationForm);
     const data = {
         dana: formData.get('dana'),
@@ -37,120 +31,184 @@ async function handleConsultation(e) {
         jangkaWaktu: formData.get('jangkaWaktu')
     };
 
-    if (!data.dana || !data.keperluan || !data.jangkaWaktu) {
-        alert('Harap isi semua field!');
-        return;
-    }
-
-    if (isNaN(data.dana) || data.dana <= 0) {
-        alert('Dana harus berupa angka positif!');
-        return;
-    }
-
+    // Show loading
     showLoading();
-
-    responseTimeout = setTimeout(showQRISDonation, 15000);
-
+    
+    // Set timeout for 7 seconds
+    responseTimeout = setTimeout(() => {
+        showQRISDonation();
+    }, 7000);
+    
     try {
-        const response = await fetch(`${API_BASE_URL}/api/advice`, {
+        const response = await fetch(`${API_BASE_URL}/api/chat`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify(data)
         });
 
+        // Clear timeout if response received
         clearTimeout(responseTimeout);
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const result = await response.json();
-        if (result.success) displayResult(result.data);
-        else throw new Error(result.error || 'Terjadi kesalahan server');
-
-    } catch (err) {
-        console.error('❌ Error:', err);
+        
+        if (result.success) {
+            displayResult(result.data);
+        } else {
+            throw new Error(result.error || 'Terjadi kesalahan');
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        // Clear timeout on error
         clearTimeout(responseTimeout);
+        // Tidak menampilkan alert, langsung tampilkan QRIS
         showQRISDonation();
     } finally {
         hideLoading();
     }
 }
 
-// ========================
-//       DISPLAY RESULT
-// ========================
+// Display AI response
 function displayResult(data) {
+    // Update summary
+    document.getElementById('summary-dana').textContent = `Rp ${parseInt(data.dana).toLocaleString('id-ID')}`;
+    document.getElementById('summary-keperluan').textContent = data.keperluan;
+    document.getElementById('summary-jangkaWaktu').textContent = data.jangkaWaktu;
+    
+    // Display AI response with formatting
     const aiResponse = document.getElementById('ai-response');
-    aiResponse.innerHTML = `<pre>${data}</pre>`;
-
-    if (qrisDonation) qrisDonation.style.display = 'none';
-    consultationForm?.closest('.consultation-form-section')?.style.display = 'none';
+    aiResponse.innerHTML = formatAIResponse(data.saran);
+    
+    // Hide QRIS donation if shown
+    if (qrisDonation) {
+        qrisDonation.style.display = 'none';
+    }
+    
+    // Show result section and hide form
+    const formSection = document.querySelector('.consultation-form-section');
+    if (formSection) {
+        formSection.style.display = 'none';
+    }
     resultSection.style.display = 'block';
+    
+    // Scroll to result
     resultSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ========================
-//       FALLBACK QRIS
-// ========================
+// Show QRIS donation after timeout
 function showQRISDonation() {
+    // Update summary with current form data
     const formData = new FormData(consultationForm);
-
     document.getElementById('summary-dana').textContent = `Rp ${parseInt(formData.get('dana')).toLocaleString('id-ID')}`;
     document.getElementById('summary-keperluan').textContent = formData.get('keperluan');
     document.getElementById('summary-jangkaWaktu').textContent = formData.get('jangkaWaktu');
-
-    document.getElementById('ai-response').innerHTML = `
-        <div class="alert alert-info">
-            <p><strong>💡 Tips Keuangan Umum</strong></p>
-            <ol>
-                <li>Diversifikasi Portofolio</li>
-                <li>Dana Darurat 3-6 bulan</li>
-                <li>Mulai dengan jumlah kecil</li>
-                <li>Edukasi diri sebelum berinvestasi</li>
-                <li>Konsisten dan disiplin</li>
-            </ol>
-        </div>
+    
+    // Display timeout message
+    const aiResponse = document.getElementById('ai-response');
+    aiResponse.innerHTML = `
+        <p><strong>Terima kasih telah menggunakan layanan kami!</strong></p>
+        <p>Mohon maaf untuk tidak bisa menghasilkan generate AI karena kendala</p>
+        <p>Berikut adalah saran keuangan umum untuk Anda:</p>
+        <br>
+        <p><strong>1. Diversifikasi Portofolio</strong><br>
+        Sebarkan investasi Anda ke berbagai instrumen untuk mengurangi risiko.</p>
+        
+        <p><strong>2. Dana Darurat</strong><br>
+        Pastikan Anda memiliki dana darurat 3-6 bulan pengeluaran sebelum berinvestasi.</p>
+        
+        <p><strong>3. Mulai dengan Amount Kecil</strong><br>
+        Mulailah dengan amount yang nyaman dan tingkatkan secara bertahap.</p>
+        
+        <p><strong>4. Pelajari Instrumen Investasi</strong><br>
+        Pahami setiap instrumen sebelum berinvestasi untuk menghindari kerugian.</p>
+        
+        <p><strong>5. Konsisten dan Disiplin</strong><br>
+        Investasi yang konsisten dalam jangka panjang biasanya memberikan hasil terbaik.</p>
     `;
-
-    if (qrisDonation) qrisDonation.style.display = 'block';
-    consultationForm?.closest('.consultation-form-section')?.style.display = 'none';
+    
+    // Show QRIS donation section
+    if (qrisDonation) {
+        qrisDonation.style.display = 'block';
+    }
+    
+    // Show result section and hide form
+    const formSection = document.querySelector('.consultation-form-section');
+    if (formSection) {
+        formSection.style.display = 'none';
+    }
     resultSection.style.display = 'block';
+    
+    // Scroll to result
     resultSection.scrollIntoView({ behavior: 'smooth' });
+    
+    // Hide loading
+    hideLoading();
 }
 
-// ========================
-//       RESET FORM
-// ========================
+// Format AI response
+function formatAIResponse(response) {
+    if (!response) return '<p>Tidak ada saran yang tersedia.</p>';
+    
+    // Convert markdown-like formatting to HTML
+    let formatted = response
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/(\d+\.)\s/g, '<br><strong>$1</strong> ')
+        .replace(/\n/g, '<br>')
+        .replace(/(Strategi|Tips|Risiko|Langkah|Rekomendasi)/gi, '<br><strong>$1</strong>');
+    
+    return formatted;
+}
+
+// Reset form for new consultation
 function resetForm() {
     consultationForm.reset();
-    consultationForm?.closest('.consultation-form-section')?.style.display = 'block';
+    const formSection = document.querySelector('.consultation-form-section');
+    if (formSection) {
+        formSection.style.display = 'block';
+    }
     resultSection.style.display = 'none';
-    if (qrisDonation) qrisDonation.style.display = 'none';
-    if (responseTimeout) clearTimeout(responseTimeout);
-    consultationForm.scrollIntoView({ behavior: 'smooth' });
+    
+    // Hide QRIS donation
+    if (qrisDonation) {
+        qrisDonation.style.display = 'none';
+    }
+    
+    // Clear any existing timeout
+    if (responseTimeout) {
+        clearTimeout(responseTimeout);
+    }
+    
+    // Scroll to form
+    formSection.scrollIntoView({ behavior: 'smooth' });
 }
 
-// ========================
-//       LOADING STATES
-// ========================
+// Loading states
 function showLoading() {
-    if (loadingElement) loadingElement.style.display = 'block';
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-    }
+    loadingElement.style.display = 'block';
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
 }
 
 function hideLoading() {
-    if (loadingElement) loadingElement.style.display = 'none';
-    if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Dapatkan Saran AI';
-    }
+    loadingElement.style.display = 'none';
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Dapatkan Saran AI';
 }
 
-// ========================
-//       INIT
-// ========================
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 Konsultan Keuangan AI siap digunakan');
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Konsultan Keuangan AI siap digunakan');
+    
+    // Add animation to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
 });
