@@ -1,5 +1,5 @@
 // API configuration
-const API_BASE_URL = 'https://c482e530ac4035cd512452623146ba2a.serveo.net'; // Ganti dengan URL production
+const API_BASE_URL = 'https://01789907f3bf58.lhr.life/'; // Ganti dengan URL production
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
