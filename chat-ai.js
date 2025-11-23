@@ -40,7 +40,7 @@ async function handleConsultation(e) {
     }, 7000);
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        const response = await fetch(`${API_BASE_URL}/api/advice`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
