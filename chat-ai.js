@@ -1,5 +1,5 @@
 // API configuration - PERBAIKI: HAPUS SLASH DI AKHIR
-const API_BASE_URL = 'https://10fd83f3a3f20a.lhr.life/'; // ✅ TANPA SLASH DI AKHIR
+const API_BASE_URL = 'https://a46e1b6fd6a278.lhr.life/'; // ✅ TANPA SLASH DI AKHIR
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
