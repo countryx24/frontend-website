@@ -1,5 +1,5 @@
 // API configuration - PERBAIKI: HAPUS SLASH DI AKHIR
-const API_BASE_URL = 'https://object-climb-makeup-lamps.trycloudflare.com/'; // ✅ TANPA SLASH DI AKHIR
+const API_BASE_URL = 'https://object-climb-makeup-lamps.trycloudflare.com'; // ✅ TANPA SLASH DI AKHIR
 
 // DOM Elements
 const consultationForm = document.getElementById('consultation-form');
